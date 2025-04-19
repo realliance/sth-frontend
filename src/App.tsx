@@ -1,5 +1,4 @@
 import { Gametable } from "./components/Gametable";
-import { PlayerHand } from "./components/PlayerHand";
 import { Wind } from "./models/Wind";
 import { generatePieces } from "./util/lorumPieces";
 

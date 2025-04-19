@@ -48,16 +48,16 @@
             export HOME=$TMPDIR
             
             # Install dependencies
-            npm ci
+            npm install
             
             # Build the application
-            npm run build
+            npm run build 
           '';
           
           installPhase = ''
             # Copy the build output to the Nix store
             mkdir -p $out
-            cp -r build/* $out/
+            cp -r build/dist/* $out/
           '';
         };
       }
