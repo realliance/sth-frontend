@@ -1,6 +1,5 @@
 import { PieceType, SuitType } from "../models/Piece";
 
-// Add enum for piece sizes
 export enum PieceSize {
   Small = "small",
   Large = "large",
@@ -33,7 +32,6 @@ function getRotationClass(rotation: number) {
   return rotationClasses[rotation % 4];
 }
 
-// Updated function to handle different container sizes based on size and rotation
 function getSizeClasses(rotation: number, size: PieceSize = PieceSize.Large) {
   if (size === PieceSize.Small) {
     return rotation % 2 === 0 ? "w-6 h-8" : "w-8 h-6";
@@ -41,7 +39,6 @@ function getSizeClasses(rotation: number, size: PieceSize = PieceSize.Large) {
   return rotation % 2 === 0 ? "w-12 h-16" : "w-16 h-12";
 }
 
-// New function to get the appropriate padding when rotated
 function getRotatedPaddingClass(
   rotation: number,
   size: PieceSize = PieceSize.Large
@@ -50,12 +47,10 @@ function getRotatedPaddingClass(
   return size === PieceSize.Small ? "my-1" : "my-3";
 }
 
-// Function to get image size classes
 function getImageSizeClass(size: PieceSize = PieceSize.Large) {
   return size === PieceSize.Small ? "w-6 h-8" : "w-12 h-16";
 }
 
-// Updated interface with size property
 interface IPiece extends PieceType {
   rotation?: number;
   size?: PieceSize;

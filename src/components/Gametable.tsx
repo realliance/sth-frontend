@@ -23,7 +23,6 @@ export const Gametable = ({
   wind,
   discardPiles,
 }: GametableProps) => {
-  // Calculate positions based on Riichi Mahjong seating order
   const getPlayerOnRight = (playerWind: Wind): Wind => {
     switch (playerWind) {
       case Wind.East:
