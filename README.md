@@ -1,4 +1,4 @@
-# Small Turtle House Frontend
+# Small Turtle House Frontend 🤏🐢🏠
 
 ## Dependencies
 
