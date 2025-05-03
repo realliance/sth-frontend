@@ -1,3 +1,4 @@
+import { motion } from "motion/react"
 import { PieceType, SuitType } from "../models/Piece";
 
 export enum PieceSize {
@@ -54,6 +55,7 @@ function getImageSizeClass(size: PieceSize = PieceSize.Large) {
 interface IPiece extends PieceType {
   rotation?: number;
   size?: PieceSize;
+  animated?: boolean;
 }
 
 export const Piece = ({
@@ -61,8 +63,10 @@ export const Piece = ({
   rank,
   rotation = 0,
   size = PieceSize.Large,
+  animated = false,
 }: IPiece) => (
-  <div
+  <motion.div
+    whileHover={animated ? { bottom: 10 } : undefined}
     className={`relative ${getSizeClasses(
       rotation,
       size
@@ -86,5 +90,5 @@ export const Piece = ({
         />
       </div>
     </div>
-  </div>
+  </motion.div>
 );

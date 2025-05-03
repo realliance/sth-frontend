@@ -9,7 +9,7 @@ export function PlayerHand({ pieces }: PlayerHandProps) {
   return (
     <div className="flex gap-2">
       {pieces.map((piece, index) => (
-        <Piece {...piece} key={index} />
+        <Piece {...piece} key={index} animated />
       ))}
     </div>
   );
