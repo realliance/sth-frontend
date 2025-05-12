@@ -1,14 +1,9 @@
 import { Gametable } from "./components/Gametable";
 import { Wind } from "./models/Wind";
-import { generatePieces } from "./util/lorumPieces";
+import { generatePieces, generatePlayers } from "./util/lorumPieces";
 
 function App() {
-  const discardPiles = {
-    [Wind.East]: generatePieces(15),
-    [Wind.South]: generatePieces(15),
-    [Wind.West]: generatePieces(15),
-    [Wind.North]: generatePieces(15),
-  };
+  const players = generatePlayers();
 
   const hand = generatePieces(13);
 
@@ -19,7 +14,7 @@ function App() {
           seatPerspective={Wind.East}
           perspectiveHand={hand}
           wind={Wind.East}
-          discardPiles={discardPiles}
+          players={players}
         />
       </div>
     </>

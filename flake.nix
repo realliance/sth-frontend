@@ -25,12 +25,6 @@
             nodeEnv.nodejs
             nodeEnv.npm
           ];
-          
-          shellHook = ''
-            echo "Node.js development environment
-            echo "Node.js version: $(node --version)"
-            echo "npm version: $(npm --version)"
-          '';
         };
 
         # Build the React application

@@ -1,27 +1,28 @@
 import { PieceType } from "../models/Piece";
+import { Player } from "../models/Player";
 import { Wind } from "../models/Wind";
 import { DiscardPile } from "./DiscardPile";
 import { PlayerHand } from "./PlayerHand";
 
-type GametableDiscardPiles = {
-  [Wind.East]: PieceType[];
-  [Wind.South]: PieceType[];
-  [Wind.West]: PieceType[];
-  [Wind.North]: PieceType[];
+type GametablePlayers = {
+  [Wind.East]: Player;
+  [Wind.South]: Player;
+  [Wind.West]: Player;
+  [Wind.North]: Player;
 };
 
 interface GametableProps {
   seatPerspective: Wind;
   perspectiveHand: PieceType[];
   wind: Wind;
-  discardPiles: GametableDiscardPiles;
+  players: GametablePlayers;
 }
 
 export const Gametable = ({
   seatPerspective,
   perspectiveHand,
   wind,
-  discardPiles,
+  players,
 }: GametableProps) => {
   const getPlayerOnRight = (playerWind: Wind): Wind => {
     switch (playerWind) {
@@ -69,22 +70,16 @@ export const Gametable = ({
   return (
     <div className="flex flex-col items-center justify-between h-full">
       <div className="flex flex-row justify-between w-full">
-        <DiscardPile pieces={discardPiles[leftPlayer]} wind={leftPlayer} />
-        <DiscardPile
-          pieces={discardPiles[oppositePlayer]}
-          wind={oppositePlayer}
-        />
-        <DiscardPile pieces={discardPiles[rightPlayer]} wind={rightPlayer} />
+        <DiscardPile player={players[leftPlayer]} wind={leftPlayer} />
+        <DiscardPile player={players[oppositePlayer]} wind={oppositePlayer} />
+        <DiscardPile player={players[rightPlayer]} wind={rightPlayer} />
       </div>
 
       <div className="flex items-center">
         <p className="font-bold">{wind} Wind</p>
       </div>
 
-      <DiscardPile
-        pieces={discardPiles[seatPerspective]}
-        wind={seatPerspective}
-      />
+      <DiscardPile player={players[seatPerspective]} wind={seatPerspective} />
       <PlayerHand pieces={perspectiveHand} />
     </div>
   );
