@@ -6,8 +6,13 @@ export enum PieceSize {
   Large = "large",
 }
 
-function getPieceImagePath(suit: SuitType, rank: number, isRed?: boolean) {
+function getPieceImagePath(suit: SuitType, rank: number, faceDown: boolean, isRed?: boolean) {
   const basePath = "/pieces/";
+
+  if (faceDown) {
+    return `${basePath}Back.svg`;
+  }
+
   const redSuffix = isRed ? "-Dora" : "";
 
   if (suit === SuitType.Honor) {
@@ -64,6 +69,7 @@ export const Piece = ({
   rotation = 0,
   size = PieceSize.Large,
   animated = false,
+  faceDown = false,
 }: IPiece) => (
   <motion.div
     whileHover={animated ? { bottom: 10 } : undefined}
@@ -79,7 +85,7 @@ export const Piece = ({
         } ${getRotationClass(rotation)}`}
       >
         <img
-          src={getPieceImagePath(suit, rank)}
+          src={getPieceImagePath(suit, rank, faceDown)}
           alt={`${suit} ${rank}`}
           className={`relative z-10 object-contain ${getImageSizeClass(size)}`}
         />

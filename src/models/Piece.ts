@@ -9,4 +9,5 @@ export interface PieceType {
   suit: SuitType;
   rank: number;
   isRed?: boolean;
+  faceDown?: boolean;
 }

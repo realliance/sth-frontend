@@ -3,6 +3,7 @@ import { Player } from "../models/Player";
 import { Wind } from "../models/Wind";
 import { DiscardPile } from "./DiscardPile";
 import { PlayerHand } from "./PlayerHand";
+import { ScorePanel } from "./ScorePanel";
 
 type GametablePlayers = {
   [Wind.East]: Player;
@@ -74,10 +75,8 @@ export const Gametable = ({
         <DiscardPile player={players[oppositePlayer]} wind={oppositePlayer} />
         <DiscardPile player={players[rightPlayer]} wind={rightPlayer} />
       </div>
-
-      <div className="flex items-center">
-        <p className="font-bold">{wind} Wind</p>
-      </div>
+    
+      <ScorePanel roundWind={wind} roundNumber={1} wallTilesRemaining={144} honbaSticks={0} riichiSticks={0} maxDoraTiles={5} doraTiles={[]} />
 
       <DiscardPile player={players[seatPerspective]} wind={seatPerspective} />
       <PlayerHand pieces={perspectiveHand} />

@@ -14,7 +14,7 @@ function getGridClasses(rotation: number) {
 
 export const DiscardPile = ({ rotation, player, wind }: DiscardPileProps) => (
   <div>
-    {wind && <p>{wind}</p>}
+    {wind && <p className="text-lg font-bold mb-1">{wind}</p>}
     <div className={`grid gap-2 ${getGridClasses(rotation || 0)}`}>
       {player.discardPile.map((piece, index) => (
         <Piece {...piece} key={index} rotation={rotation || 0} />
