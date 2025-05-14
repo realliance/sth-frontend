@@ -1,4 +1,4 @@
-import { PieceType } from "../models/Piece";
+import { PieceType, SuitType } from "../models/Piece";
 import { Player } from "../models/Player";
 import { Wind } from "../models/Wind";
 import { DiscardPile } from "./DiscardPile";
@@ -75,8 +75,21 @@ export const Gametable = ({
         <DiscardPile player={players[oppositePlayer]} wind={oppositePlayer} />
         <DiscardPile player={players[rightPlayer]} wind={rightPlayer} />
       </div>
-    
-      <ScorePanel roundWind={wind} roundNumber={1} wallTilesRemaining={144} honbaSticks={0} riichiSticks={0} maxDoraTiles={5} doraTiles={[]} />
+
+      <ScorePanel
+        roundWind={wind}
+        roundNumber={1}
+        wallTilesRemaining={144}
+        honbaSticks={0}
+        riichiSticks={0}
+        maxDoraTiles={5}
+        doraTiles={[
+          {
+            suit: SuitType.Pin,
+            rank: 1
+          }
+        ]}
+      />
 
       <DiscardPile player={players[seatPerspective]} wind={seatPerspective} />
       <PlayerHand pieces={perspectiveHand} />

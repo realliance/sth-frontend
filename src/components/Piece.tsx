@@ -1,4 +1,4 @@
-import { motion } from "motion/react"
+import { motion } from "motion/react";
 import { PieceType, SuitType } from "../models/Piece";
 
 export enum PieceSize {
@@ -6,7 +6,12 @@ export enum PieceSize {
   Large = "large",
 }
 
-function getPieceImagePath(suit: SuitType, rank: number, faceDown: boolean, isRed?: boolean) {
+function getPieceImagePath(
+  suit: SuitType,
+  rank: number,
+  faceDown: boolean,
+  isRed?: boolean,
+) {
   const basePath = "/pieces/";
 
   if (faceDown) {
@@ -47,7 +52,7 @@ function getSizeClasses(rotation: number, size: PieceSize = PieceSize.Large) {
 
 function getRotatedPaddingClass(
   rotation: number,
-  size: PieceSize = PieceSize.Large
+  size: PieceSize = PieceSize.Large,
 ) {
   if (rotation % 2 === 0) return "";
   return size === PieceSize.Small ? "my-1" : "my-3";
@@ -75,7 +80,7 @@ export const Piece = ({
     whileHover={animated ? { bottom: 10 } : undefined}
     className={`relative ${getSizeClasses(
       rotation,
-      size
+      size,
     )} ${getRotatedPaddingClass(rotation, size)}`}
   >
     <div className="absolute inset-0 flex items-center justify-center">

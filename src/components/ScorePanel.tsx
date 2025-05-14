@@ -13,12 +13,27 @@ interface ScorePanelProps {
   maxDoraTiles: number;
 }
 
-export function ScorePanel({ roundWind, roundNumber, wallTilesRemaining, honbaSticks, riichiSticks, doraTiles, maxDoraTiles }: ScorePanelProps) {
+export function ScorePanel({
+  roundWind,
+  roundNumber,
+  wallTilesRemaining,
+  honbaSticks,
+  riichiSticks,
+  doraTiles,
+  maxDoraTiles,
+}: ScorePanelProps) {
   const doraList = useMemo(() => {
     return Array.from({ length: maxDoraTiles }, (_, i) => {
-      return <Piece suit={doraTiles[i]?.suit ?? SuitType.Sou} rank={doraTiles[i]?.rank ?? 0} size={PieceSize.Small} faceDown={doraTiles[i] === undefined} />
-    })
-  }, [doraTiles, maxDoraTiles])
+      return (
+        <Piece
+          suit={doraTiles[i]?.suit ?? SuitType.Sou}
+          rank={doraTiles[i]?.rank ?? 0}
+          size={PieceSize.Small}
+          faceDown={doraTiles[i] === undefined}
+        />
+      );
+    });
+  }, [doraTiles, maxDoraTiles]);
 
   return (
     <div className="flex flex-col items-center gap-1">
@@ -39,11 +54,8 @@ export function ScorePanel({ roundWind, roundNumber, wallTilesRemaining, honbaSt
           <p className="text-lg font-bold">Riichi</p>
           <p className="text-lg font-bold">{riichiSticks}</p>
         </div>
-        
       </div>
-      <div className="flex flex-row items-center gap-1">
-        {doraList}
-      </div>
+      <div className="flex flex-row items-center gap-1">{doraList}</div>
     </div>
   );
 }
