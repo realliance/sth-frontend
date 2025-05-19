@@ -1,61 +1,62 @@
-import { useMemo } from "react";
-import { PieceType, SuitType } from "../models/Piece";
+import { Player } from "../models/Player";
 import { Wind } from "../models/Wind";
-import { Piece, PieceSize } from "./Piece";
 
 interface ScorePanelProps {
-  roundWind: Wind;
-  roundNumber: number;
-  wallTilesRemaining: number;
-  honbaSticks: number;
-  riichiSticks: number;
-  doraTiles: PieceType[];
-  maxDoraTiles: number;
+  players: {
+    [key in Wind]: Player;
+  };
+  dealerWind: Wind;
 }
 
-export function ScorePanel({
-  roundWind,
-  roundNumber,
-  wallTilesRemaining,
-  honbaSticks,
-  riichiSticks,
-  doraTiles,
-  maxDoraTiles,
-}: ScorePanelProps) {
-  const doraList = useMemo(() => {
-    return Array.from({ length: maxDoraTiles }, (_, i) => {
-      return (
-        <Piece
-          suit={doraTiles[i]?.suit ?? SuitType.Sou}
-          rank={doraTiles[i]?.rank ?? 0}
-          size={PieceSize.Small}
-          faceDown={doraTiles[i] === undefined}
-        />
-      );
-    });
-  }, [doraTiles, maxDoraTiles]);
+export function ScorePanel({ players, dealerWind }: ScorePanelProps) {
+  // Sort players by score (highest first)
+  const sortedPlayers = Object.entries(players)
+    .map(([wind, player]) => ({
+      wind: wind as Wind,
+      player,
+      isDealer: wind === dealerWind,
+    }))
+    .sort(
+      (a, b) =>
+        (b.player.score ?? b.player.points) -
+        (a.player.score ?? a.player.points),
+    );
 
   return (
-    <div className="flex flex-col items-center gap-1">
-      <div className="flex flex-row items-center gap-2">
-        <p className="text-2xl font-bold italic">{roundWind}</p>
-        <p className="text-2xl font-bold">{roundNumber}</p>
-      </div>
-      <div className="flex flex-row items-center gap-2">
-        <Piece faceDown suit={SuitType.Sou} rank={0} size={PieceSize.Small} />
-        <p className="text-lg font-bold">{wallTilesRemaining}</p>
-      </div>
-      <div className="flex flex-row gap-4">
-        <div className="flex flex-row items-center gap-1">
-          <p className="text-lg font-bold">Honba</p>
-          <p className="text-lg font-bold">{honbaSticks}</p>
+    <div className="bg-slate-800/95 rounded-lg shadow-lg border border-slate-700 p-3 w-full h-auto max-w-xs text-slate-100">
+      <div className="flex flex-col gap-2">
+        {/* Header */}
+        <div className="border-b border-slate-700 pb-1">
+          <h2 className="text-lg font-bold">Scores</h2>
         </div>
-        <div className="flex flex-row items-center gap-1">
-          <p className="text-lg font-bold">Riichi</p>
-          <p className="text-lg font-bold">{riichiSticks}</p>
+
+        {/* Player List */}
+        <div className="flex flex-col gap-1">
+          {sortedPlayers.map(({ wind, player, isDealer }) => (
+            <div
+              key={wind}
+              className="flex items-center justify-between py-1 border-b border-slate-700/50 last:border-0"
+            >
+              <div className="flex items-center gap-3">
+                {/* Player indicator with dealer marker if applicable */}
+                <div className="w-8 h-8 flex items-center justify-center bg-slate-700 rounded-full">
+                  <span
+                    className={`text-md font-bold ${isDealer ? "text-yellow-300" : ""}`}
+                  >
+                    {wind.charAt(0)}
+                  </span>
+                </div>
+                <span className="font-medium text-sm">
+                  {player.name ?? player.username}
+                </span>
+              </div>
+              <span className="text-base font-bold">
+                {player.score ?? player.points}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
-      <div className="flex flex-row items-center gap-1">{doraList}</div>
     </div>
   );
 }
