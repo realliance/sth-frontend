@@ -2,7 +2,7 @@ import { Gametable } from "./components/Gametable";
 import { Header } from "./components/Header";
 import { Wind } from "./models/Wind";
 import { generatePieces, generatePlayers } from "./util/lorumPieces";
-import { PieceType, SuitType } from "./models/Piece";
+import { SuitType } from "./models/Piece";
 import { MeldType, MeldOrientation } from "./components/PieceMeld";
 
 function App() {

@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { PieceType, SuitType } from "../models/Piece";
+import { PieceType, SuitType } from "../lib/models/Piece";
 
 export enum PieceSize {
   Small = "small",
