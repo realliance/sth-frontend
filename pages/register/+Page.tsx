@@ -1,28 +1,117 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { authService } from "../../services/auth.service";
 import type { CreateUserRequest } from "../../types/api";
 import { Link } from "../../components/Link";
 import { MdError } from "react-icons/md";
-import { iso31661 } from "iso-3166";
 import { CountryDropdown } from "../../components/CountryDropdown";
 import type { CountryIcon } from "../../lib/models/Countries";
-import { getCountryByAlpha3 } from "../../lib/models/Countries";
+import { getCountryByAlpha2 } from "../../lib/models/Countries";
+import Avatar from "../../components/Avatar";
+import type { PieceType } from "../../lib/models/Piece";
+import { SuitType } from "../../lib/models/Piece";
+import { PieceSize } from "../../components/Piece";
+import { TileSelector } from "../../components/TileSelector";
+
+const TILE_OPTIONS = [
+  "1m",
+  "2m",
+  "3m",
+  "4m",
+  "5m",
+  "6m",
+  "7m",
+  "8m",
+  "9m",
+  "1p",
+  "2p",
+  "3p",
+  "4p",
+  "5p",
+  "6p",
+  "7p",
+  "8p",
+  "9p",
+  "1s",
+  "2s",
+  "3s",
+  "4s",
+  "5s",
+  "6s",
+  "7s",
+  "8s",
+  "9s",
+  "east",
+  "south",
+  "west",
+  "north",
+  "white",
+  "green",
+  "red",
+];
+
+const tileStringToPiece = (tileStr: string): PieceType => {
+  if (
+    ["east", "south", "west", "north", "white", "green", "red"].includes(
+      tileStr,
+    )
+  ) {
+    const honorRanks = {
+      red: 0,
+      white: 1,
+      green: 2,
+      north: 3,
+      south: 4,
+      east: 5,
+      west: 6,
+    };
+    return {
+      suit: SuitType.Honor,
+      rank: honorRanks[tileStr as keyof typeof honorRanks],
+    };
+  }
+
+  const rank = parseInt(tileStr[0]);
+  const suitChar = tileStr[1];
+  const suitMap = { m: SuitType.Man, p: SuitType.Pin, s: SuitType.Sou };
+
+  return { suit: suitMap[suitChar as keyof typeof suitMap], rank };
+};
+
+const detectCountryFromLocale = (): CountryIcon | undefined => {
+  if (typeof navigator !== "undefined") {
+    const locale = navigator.language || navigator.languages?.[0];
+    if (locale) {
+      const parts = locale.split("-");
+      if (parts.length > 1) {
+        const countryCode = parts[parts.length - 1].toUpperCase();
+        return getCountryByAlpha2(countryCode);
+      }
+    }
+  }
+  return undefined;
+};
 
 export default function RegisterPage() {
+  const getRandomTile = () =>
+    TILE_OPTIONS[Math.floor(Math.random() * TILE_OPTIONS.length)];
+
+  const detectedCountry = detectCountryFromLocale();
+  const initialCountry = detectedCountry ? detectedCountry.country.alpha3 : "";
+
   const [formData, setFormData] = useState<CreateUserRequest>({
     username: "",
     password: "",
-    country: "",
+    country: initialCountry,
     email: "",
     pronouns: "",
-    favorite_tile: "",
+    favorite_tile: getRandomTile(),
   });
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<
     CountryIcon | undefined
-  >(formData.country ? getCountryByAlpha3(formData.country) : undefined);
+  >(detectedCountry || undefined);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -40,6 +129,16 @@ export default function RegisterPage() {
       ...prev,
       country: country.country.alpha3,
     }));
+  };
+
+  const isFormValid = () => {
+    return (
+      formData.username.trim() !== "" &&
+      formData.password.trim() !== "" &&
+      confirmPassword.trim() !== "" &&
+      formData.favorite_tile !== "" &&
+      formData.password === confirmPassword
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -68,162 +167,176 @@ export default function RegisterPage() {
     <div className="min-h-screen flex items-center justify-center bg-base-200 py-8">
       <div className="card w-full max-w-md bg-base-100 shadow-xl">
         <div className="card-body">
-          <div className="text-center mb-6">
+          {formData.favorite_tile && (
+            <div className="flex justify-center my-2">
+              <Avatar
+                piece={tileStringToPiece(formData.favorite_tile)}
+                size={PieceSize.ExtraLarge}
+                flag={
+                  selectedCountry ||
+                  getCountryByAlpha2("AD") ||
+                  selectedCountry!
+                }
+              />
+            </div>
+          )}
+          <div className="text-center my-2">
             <h1 className="text-2xl font-bold text-primary">
               Small Turtle House
             </h1>
-            <p className="text-sm text-base-content/60">Create your account</p>
+            <p className="text-sm text-base-content/60">Create your profile</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit}>
             {error && (
-              <div className="alert alert-error">
+              <div className="alert alert-error mb-8">
                 <MdError className="w-6 h-6" />
                 <span>{error}</span>
               </div>
             )}
 
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Username *</span>
-              </label>
-              <input
-                type="text"
-                name="username"
-                value={formData.username}
-                onChange={handleInputChange}
-                className="input input-bordered w-full"
-                placeholder="Enter your username"
-                required
-                disabled={isLoading}
-              />
-            </div>
+            <fieldset className="fieldset mb-6">
+              <div className="fieldset-content">
+                <div className="form-control flex flex-col gap-1">
+                  <label className="label">
+                    <span className="label-text">Flag</span>
+                  </label>
+                  <CountryDropdown
+                    selectedCountry={selectedCountry}
+                    onCountryChange={handleCountryChange}
+                  />
+                </div>
+              </div>
+            </fieldset>
 
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Password *</span>
-              </label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                className="input input-bordered w-full"
-                placeholder="Enter your password"
-                required
-                disabled={isLoading}
-              />
-            </div>
+            <fieldset className="fieldset mb-6">
+              <div className="fieldset-content">
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Favorite Tile *</span>
+                  </label>
+                  <TileSelector
+                    selectedTile={formData.favorite_tile || ""}
+                    onTileSelect={(tile) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        favorite_tile: tile,
+                      }));
+                    }}
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+            </fieldset>
 
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Confirm Password *</span>
-              </label>
-              <input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="input input-bordered w-full"
-                placeholder="Confirm your password"
-                required
-                disabled={isLoading}
-              />
-            </div>
+            <fieldset className="fieldset mb-6">
+              <div className="fieldset-content">
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Username *</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleInputChange}
+                    className="input input-bordered w-full"
+                    placeholder="Enter your username"
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+            </fieldset>
 
-            <div className="form-control flex flex-col gap-1">
-              <label className="label">
-                <span className="label-text">Flag</span>
-              </label>
-              <CountryDropdown
-                selectedCountry={selectedCountry}
-                onCountryChange={handleCountryChange}
-              />
-            </div>
+            <fieldset className="fieldset mb-6">
+              <div className="fieldset-content">
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Pronouns</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="pronouns"
+                    value={formData.pronouns || ""}
+                    onChange={handleInputChange}
+                    className="input input-bordered w-full"
+                    placeholder="e.g., they/them, he/him, she/her"
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+            </fieldset>
 
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Email</span>
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email || ""}
-                onChange={handleInputChange}
-                className="input input-bordered w-full"
-                placeholder="Enter your email (optional)"
-                disabled={isLoading}
-              />
-            </div>
+            <fieldset className="fieldset mb-6">
+              <div className="fieldset-content">
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Email</span>
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email || ""}
+                    onChange={handleInputChange}
+                    className="input input-bordered w-full"
+                    placeholder="Enter your email (optional)"
+                    disabled={isLoading}
+                  />
+                  <div className="label">
+                    <span className="label-text-alt text-base-content/60">
+                      Emails will only be used to notify of moderation activity
+                      on your account
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
 
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Pronouns</span>
-              </label>
-              <input
-                type="text"
-                name="pronouns"
-                value={formData.pronouns || ""}
-                onChange={handleInputChange}
-                className="input input-bordered w-full"
-                placeholder="e.g., they/them, he/him, she/her"
-                disabled={isLoading}
-              />
-            </div>
+            <fieldset className="fieldset mb-6">
+              <div className="fieldset-content">
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Password *</span>
+                  </label>
+                  <input
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    className="input input-bordered w-full"
+                    placeholder="Enter your password"
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+            </fieldset>
 
-            <div className="form-control">
-              <label className="label">
-                <span className="label-text">Favorite Tile</span>
-              </label>
-              <select
-                name="favorite_tile"
-                value={formData.favorite_tile || ""}
-                onChange={handleInputChange}
-                className="select select-bordered w-full"
-                disabled={isLoading}
-              >
-                <option value="">Select your favorite tile (optional)</option>
-                <option value="1m">1 Man</option>
-                <option value="2m">2 Man</option>
-                <option value="3m">3 Man</option>
-                <option value="4m">4 Man</option>
-                <option value="5m">5 Man</option>
-                <option value="6m">6 Man</option>
-                <option value="7m">7 Man</option>
-                <option value="8m">8 Man</option>
-                <option value="9m">9 Man</option>
-                <option value="1p">1 Pin</option>
-                <option value="2p">2 Pin</option>
-                <option value="3p">3 Pin</option>
-                <option value="4p">4 Pin</option>
-                <option value="5p">5 Pin</option>
-                <option value="6p">6 Pin</option>
-                <option value="7p">7 Pin</option>
-                <option value="8p">8 Pin</option>
-                <option value="9p">9 Pin</option>
-                <option value="1s">1 Sou</option>
-                <option value="2s">2 Sou</option>
-                <option value="3s">3 Sou</option>
-                <option value="4s">4 Sou</option>
-                <option value="5s">5 Sou</option>
-                <option value="6s">6 Sou</option>
-                <option value="7s">7 Sou</option>
-                <option value="8s">8 Sou</option>
-                <option value="9s">9 Sou</option>
-                <option value="east">East Wind</option>
-                <option value="south">South Wind</option>
-                <option value="west">West Wind</option>
-                <option value="north">North Wind</option>
-                <option value="white">White Dragon</option>
-                <option value="green">Green Dragon</option>
-                <option value="red">Red Dragon</option>
-              </select>
-            </div>
+            <fieldset className="fieldset mb-6">
+              <div className="fieldset-content">
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Confirm Password *</span>
+                  </label>
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="input input-bordered w-full"
+                    placeholder="Confirm your password"
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
+              </div>
+            </fieldset>
 
-            <div className="form-control mt-6">
+            <div className="form-control mt-8">
               <button
                 type="submit"
                 className={`btn btn-primary w-full ${isLoading ? "loading" : ""}`}
-                disabled={isLoading}
+                disabled={isLoading || !isFormValid()}
               >
                 {isLoading ? "Creating Account..." : "Create Account"}
               </button>

@@ -253,3 +253,7 @@ export const COUNTRIES_WITH_ICONS: CountryIcon[] = EXTENDED_COUNTRIES.map((count
 export const getCountryByAlpha3 = (alpha3: string): CountryIcon | undefined => {
     return COUNTRIES_WITH_ICONS.find(c => c.country.alpha3 === alpha3);
 };
+
+export const getCountryByAlpha2 = (alpha2: string): CountryIcon | undefined => {
+    return COUNTRIES_WITH_ICONS.find(c => c.country.alpha2 === alpha2);
+};

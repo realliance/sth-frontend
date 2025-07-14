@@ -8,6 +8,8 @@ export class ApiError extends Error {
 }
 
 export class ApiClient {
+  private serverCookie?: string;
+
   private getBaseUrl() {
     // On server-side, use full URL to API server
     if (typeof window === 'undefined') {
@@ -21,19 +23,31 @@ export class ApiClient {
     'Content-Type': 'application/json',
   };
 
+  // Method to set server-side cookie for SSR
+  setServerCookie(cookie: string) {
+    this.serverCookie = cookie;
+  }
+
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.getBaseUrl()}${endpoint}`;
     
+    const headers: HeadersInit = {
+      ...this.defaultHeaders,
+      ...options.headers,
+    };
+
+    // Forward cookies during SSR
+    if (typeof window === 'undefined' && this.serverCookie) {
+      headers['Cookie'] = this.serverCookie;
+    }
+    
     const config: RequestInit = {
       ...options,
       credentials: 'include', // Important for cookie-based auth
-      headers: {
-        ...this.defaultHeaders,
-        ...options.headers,
-      },
+      headers,
     };
 
     try {

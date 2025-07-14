@@ -10,5 +10,8 @@ export default {
   title: "Small Turtle House - Riichi Mahjong",
   description: "Play riichi mahjong online at Small Turtle House",
 
+  // Make sure user data is passed from server to client
+  passToClient: ['user'],
+
   extends: [vikeReact, vikeReactQuery],
 } satisfies Config;

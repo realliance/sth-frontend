@@ -37,7 +37,20 @@ const LobbiesPage = withFallback(
 
     const { data: lobbies } = useSuspenseQuery({
       queryKey: ['lobbies'],
-      queryFn: () => api.getAllLobbies(),
+      queryFn: async () => {
+        try {
+          return await api.getAllLobbies();
+        } catch (error) {
+          // Handle authentication errors - check for both ApiError status and error messages
+          if ((error as any)?.status === 401 || 
+              (error instanceof Error && (error.message.includes('401') || error.message.includes('Unauthorized')))) {
+            // Redirect to login to refresh auth state
+            window.location.href = '/login';
+            return [];
+          }
+          throw error;
+        }
+      },
     });
 
     const handleJoinQueue = async (lobby: Lobby) => {
@@ -51,13 +64,23 @@ const LobbiesPage = withFallback(
       }
     };
 
+
     return (
       <div>
         <h1 className="text-3xl font-bold mb-6">Available Lobbies</h1>
         
         {lobbies.length === 0 ? (
           <div className="text-center p-8">
-            <p className="text-lg text-base-content/60">No lobbies available at the moment.</p>
+            <div className="max-w-md mx-auto">
+              <div className="text-6xl mb-4">🎮</div>
+              <h2 className="text-xl font-semibold mb-2">No Lobbies Found</h2>
+              <p className="text-base-content/60 mb-4">
+                There are no active lobbies at the moment. Check back later or create your own game room!
+              </p>
+              <Link href="/queue" className="btn btn-outline">
+                Check Queue Status
+              </Link>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -78,16 +101,41 @@ const LobbiesPage = withFallback(
       <span className="loading loading-spinner loading-lg"></span>
     </div>
   ),
-  ({ retry }) => (
-    <div className="text-center p-8">
-      <div className="alert alert-error">
-        <span>Failed to load lobbies. Please try again.</span>
+  ({ retry, error }) => {
+    // Check if this is an authentication error
+    const isAuthError = (error as any)?.status === 401 || 
+                       (error instanceof Error && (error.message.includes('401') || error.message.includes('Unauthorized')));
+
+    if (isAuthError) {
+      return (
+        <div className="text-center p-12">
+          <div className="max-w-md mx-auto">
+            <MdLock className="w-16 h-16 mx-auto mb-4 text-primary" />
+            <h2 className="text-2xl font-bold mb-2">Session Expired</h2>
+            <p className="text-base-content/60 mb-6">
+              Your session has expired. Please log in again to view lobbies.
+            </p>
+            <div className="flex flex-col gap-3">
+              <Link href="/login" className="btn btn-primary btn-lg">
+                Login Again
+              </Link>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="text-center p-8">
+        <div className="alert alert-error">
+          <span>Failed to load lobbies. Please try again.</span>
+        </div>
+        <button onClick={retry} className="btn btn-primary mt-4">
+          Retry
+        </button>
       </div>
-      <button onClick={retry} className="btn btn-primary mt-4">
-        Retry
-      </button>
-    </div>
-  )
+    );
+  }
 );
 
 export default LobbiesPage;

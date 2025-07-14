@@ -1,12 +1,13 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { COUNTRIES_WITH_ICONS, CountryIcon } from "../lib/models/Countries";
 
 interface ICountryItem {
   c: CountryIcon;
   onCountryChange: (country: CountryIcon) => void;
+  onSelect: () => void;
 }
 
-const CountryItem = ({ c, onCountryChange }: ICountryItem) => (
+const CountryItem = ({ c, onCountryChange, onSelect }: ICountryItem) => (
   <li>
     <a
       className="flex items-center gap-2"
@@ -15,6 +16,7 @@ const CountryItem = ({ c, onCountryChange }: ICountryItem) => (
         if (onCountryChange) {
           onCountryChange(c);
         }
+        onSelect();
       }}
     >
       {c.imagePath ? (
@@ -37,6 +39,14 @@ export const CountryDropdown = ({
   onCountryChange,
 }: CountryDropdownProps) => {
   const [searchTerm, setSearchTerm] = useState("");
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const closeDropdown = () => {
+    if (dropdownRef.current) {
+      const activeElement = document.activeElement as HTMLElement;
+      activeElement?.blur();
+    }
+  };
 
   const countries = useMemo(() => {
     const filtered = COUNTRIES_WITH_ICONS.filter((c) =>
@@ -58,12 +68,13 @@ export const CountryDropdown = ({
         key={c.country.alpha3}
         c={c}
         onCountryChange={onCountryChange}
+        onSelect={closeDropdown}
       />
     ));
   }, [onCountryChange, searchTerm]);
 
   return (
-    <div className="dropdown min-w-[200px]">
+    <div className="dropdown min-w-[200px]" ref={dropdownRef}>
       <div tabIndex={0} role="button" className="btn w-full justify-start">
         {selectedCountry ? (
           <div className="flex items-center gap-2">
